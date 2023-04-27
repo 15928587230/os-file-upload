@@ -1,100 +1,43 @@
 package os.component.upload.ftp;
 
+import lombok.Data;
+import org.apache.commons.net.ftp.FTPClient;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
 /**
- * 配置类
+ * FTPClient 配置类
  *
  * @author pengjunjie
  */
+@Data
+@Component
+@ConfigurationProperties(prefix = "owinfo.ftp")
 public class FTPClientProperties {
     private String host;
-    private int port;
+    private int port = 21;
     private String username;
     private String password;
-    private String passiveMode;
-    private String encoding ;
-    private int clientTimeout;
-    private int transferFileType;
-    private boolean renameUploaded;
-    private int retryTimes;
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPassiveMode() {
-        return passiveMode;
-    }
-
-    public void setPassiveMode(String passiveMode) {
-        this.passiveMode = passiveMode;
-    }
-
-    public String getEncoding() {
-        return encoding;
-    }
-
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
-    }
-
-    public int getClientTimeout() {
-        return clientTimeout;
-    }
-
-    public void setClientTimeout(int clientTimeout) {
-        this.clientTimeout = clientTimeout;
-    }
-
-    public int getTransferFileType() {
-        return transferFileType;
-    }
-
-    public void setTransferFileType(int transferFileType) {
-        this.transferFileType = transferFileType;
-    }
-
-    public boolean isRenameUploaded() {
-        return renameUploaded;
-    }
-
-    public void setRenameUploaded(boolean renameUploaded) {
-        this.renameUploaded = renameUploaded;
-    }
-
-    public int getRetryTimes() {
-        return retryTimes;
-    }
-
-    public void setRetryTimes(int retryTimes) {
-        this.retryTimes = retryTimes;
-    }
+    // 默认采用主动模式
+    private boolean passiveMode = false;
+    private String encoding = "UTF-8";
+    // 连接超时时间
+    private int connectTimeoutSecond = 3;
+    private int transferFileType = FTPClient.BINARY_FILE_TYPE;
+    private boolean renameUploaded = false;
+    // 尝试连接次数
+    private int retryTimes = 3;
+    // 获取数据超时时间
+    private int dataTimeoutSecond = 120;
+    // socket阻塞时间
+    private int soTimeoutSecond = 10;
+    // borrowMaxWailTimeMills，borrow最大等待时间
+    private int borrowMaxWailTimeMills = 10_000;
+    // maxIdle
+    private int maxIdle = 10;
+    // minIdle
+    private int midIdle = 10;
+    // maxTotal
+    private int maxTotal = 10;
 }
  

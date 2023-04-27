@@ -6,87 +6,84 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
-import org.springframework.lang.Nullable;
-
-import java.io.IOException;
 
 /**
  * FTPClient 工厂
+ *
+ * @author pengjunjie
  */
 @Slf4j
 public class FTPClientFactory implements PooledObjectFactory<FTPClient> {
-    private FTPClientProperties properties;
-
+    private final FTPClientProperties properties;
     public FTPClientFactory(FTPClientProperties properties) {
         this.properties = properties;
     }
 
-    @Nullable
-    public PooledObject<FTPClient> makeObject() {
+    @Override
+    public PooledObject<FTPClient> makeObject() throws Exception {
         FTPClient ftpClient = new FTPClient();
-        ftpClient.setConnectTimeout(properties.getClientTimeout());
+        ftpClient.setConnectTimeout(properties.getConnectTimeoutSecond() * 1000);
         try {
             ftpClient.connect(properties.getHost(), properties.getPort());
             int reply = ftpClient.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
-                ftpClient.disconnect();
-                log.error("FTPServer refused connection...");
+                log.error("FTPServer refused connection");
                 return null;
             }
 
-            boolean result = ftpClient.login(properties.getUsername(), properties.getPassword());
-            if (!result) {
-                log.error("FTPServer authenticate failed...");
+            boolean login = ftpClient.login(properties.getUsername(), properties.getPassword());
+            if (!login) {
+                log.error("FTPServer authentication failed user={}, password={}", properties.getUsername(), properties.getPassword());
                 return null;
             }
 
-            ftpClient.setFileType(properties.getTransferFileType());
-            ftpClient.setBufferSize(1024);
+            ftpClient.setDataTimeout(properties.getDataTimeoutSecond() * 1000);
             ftpClient.setControlEncoding(properties.getEncoding());
-            if (properties.getPassiveMode().equals("true")) {
+            ftpClient.setFileType(properties.getTransferFileType());
+            ftpClient.setSoTimeout(properties.getSoTimeoutSecond() * 1000);
+            ftpClient.enterLocalActiveMode();
+            if (properties.isPassiveMode()) {
                 ftpClient.enterLocalPassiveMode();
             }
-            return new DefaultPooledObject<>(ftpClient);
-        } catch (IOException e) {
-            log.error("FTPServer connect exception...");
-            return null;
+        } catch (Exception exception) {
+            log.error("FTPServer create error, Exception={}", exception.toString());
+            throw new RuntimeException("FTPServer create error");
         }
+
+        return new DefaultPooledObject<>(ftpClient);
     }
 
     @Override
-    public void destroyObject(PooledObject<FTPClient> pooledObject) {
-        FTPClient ftpClient = pooledObject.getObject();
-        boolean ftpNotNull = ftpClient != null;
+    public void destroyObject(PooledObject<FTPClient> client) throws Exception {
+        if (client == null || client.getObject() == null) return;
+        FTPClient ftpClient = client.getObject();
         try {
-            if (ftpNotNull && ftpClient.isConnected())
-                ftpClient.logout();
-        } catch (IOException e) {
-            log.error("FTPServer logout exception..., Exception={}", e.toString());
+            ftpClient.logout();
+        } catch (Exception e) {
+            log.error("FTPClient logout exception");
         } finally {
             try {
-                if (ftpNotNull)
+                if (ftpClient.isConnected())
                     ftpClient.disconnect();
-            } catch (IOException e) {
-                log.error("FTPServer disconnect exception..., Exception={}", e.toString());
+            } catch (Exception e) {
+                log.error("FTPClient disconnect exception");
             }
         }
     }
 
     @Override
-    public boolean validateObject(PooledObject<FTPClient> pooledObject) {
-        FTPClient ftpClient = pooledObject.getObject();
+    public boolean validateObject(PooledObject<FTPClient> client) {
+        if (client == null || client.getObject() == null) return false;
         try {
-            return ftpClient.sendNoOp();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to validate client: " + e, e);
+            return client.getObject().sendNoOp();
+        } catch (Exception e) {
+            return false;
         }
     }
 
     @Override
-    public void activateObject(PooledObject<FTPClient> pooledObject) throws Exception {
-    }
+    public void activateObject(PooledObject<FTPClient> client) throws Exception {}
 
     @Override
-    public void passivateObject(PooledObject<FTPClient> pooledObject) throws Exception {
-    }
+    public void passivateObject(PooledObject<FTPClient> client) throws Exception {}
 }

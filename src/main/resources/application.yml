@@ -1,1 +1,15 @@
+server:
+  port: 8080
 
+owinfo:
+  upload:
+    enabled: true
+    #FTP?FASTDFS?MINIO
+    type: FTP
+  ftp:
+    host: 192.168.20.20
+    port: 21
+    username: ftpuser
+    password: ftpuser
+  fastdfs: ""
+  minio: ""
