@@ -66,4 +66,15 @@ public class OsFileUploadApplicationTests {
             }
         }
     }
+
+    @Test
+    public void ftpDeleteFileTest() throws Exception {
+        String uuid = "6e0c1de5496842ffa4c7c20acfa76f7a";
+        String fileName = "FTP文件上传测试大小5M.exe";
+        String remoteDir = "/2023/4/27";
+        FileUploadReply fileUploadReply = fileUploadTemplate.deleteFile(uuid, fileName, remoteDir);
+        if (fileUploadReply.isSuccess()) {
+            System.out.println("文件删除成功");
+        }
+    }
 }

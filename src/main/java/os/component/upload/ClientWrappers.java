@@ -1,4 +1,4 @@
-package os.component.upload.wrapper;
+package os.component.upload;
 
 import org.apache.commons.net.ftp.FTPClient;
 import os.component.upload.ftp.FTPClientWrapper;

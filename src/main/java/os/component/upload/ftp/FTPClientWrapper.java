@@ -77,6 +77,27 @@ public class FTPClientWrapper implements FileUploadClient {
         return fileUploadReply;
     }
 
+    @Override
+    public FileUploadReply deleteFile(String fileUuid, String fileName, String remoteDir) throws Exception {
+        boolean b = client.changeWorkingDirectory(remoteDir);
+        if (!b) {
+            return FileUploadReply.error("Download error, remoteDir is not exist.");
+        }
+
+        String remoteFileName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+
+        try {
+            boolean deleteFile = client.deleteFile(remoteFileName);
+            if (deleteFile) {
+                return FileUploadReply.success("File Deleted Success.");
+            }
+            throw new RuntimeException("File Delete Exception");
+        } catch (Exception e) {
+            log.error("File Delete Exception, Exception={}", e.toString());
+            return FileUploadReply.error("File Delete Exception");
+        }
+    }
+
     /**
      * 直接年月日目录在服务器创建目录
      */

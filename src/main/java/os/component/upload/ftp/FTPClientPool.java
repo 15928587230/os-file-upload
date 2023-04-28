@@ -5,7 +5,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import os.component.upload.FileUploadClient;
 import os.component.upload.FileUploadPool;
-import os.component.upload.wrapper.ClientWrappers;
+import os.component.upload.ClientWrappers;
 
 /**
  * FTPClient连接池
