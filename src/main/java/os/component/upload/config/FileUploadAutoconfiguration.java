@@ -9,6 +9,8 @@ import os.component.upload.fdfs.FdfsClientPool;
 import os.component.upload.fdfs.FdfsProperties;
 import os.component.upload.ftp.FTPClientPool;
 import os.component.upload.ftp.FTPClientProperties;
+import os.component.upload.minio.MinioClientPool;
+import os.component.upload.minio.MinioProperties;
 import os.component.upload.template.AbstractUploadTemplate;
 import os.component.upload.template.FileUploadTemplate;
 
@@ -22,11 +24,13 @@ import os.component.upload.template.FileUploadTemplate;
 public class FileUploadAutoconfiguration {
     private final FTPClientProperties ftpProps;
     private final FdfsProperties fdfsProps;
+    private final MinioProperties minioProperties;
     private final FileUploadConfig uploadConfig;
 
-    public FileUploadAutoconfiguration(FTPClientProperties ftpProps, FdfsProperties fdfsProps, FileUploadConfig uploadConfig) {
+    public FileUploadAutoconfiguration(FTPClientProperties ftpProps, FdfsProperties fdfsProps, MinioProperties minioProperties, FileUploadConfig uploadConfig) {
         this.ftpProps = ftpProps;
         this.fdfsProps = fdfsProps;
+        this.minioProperties = minioProperties;
         this.uploadConfig = uploadConfig;
     }
 
@@ -38,6 +42,10 @@ public class FileUploadAutoconfiguration {
 
         if (FileUploadConstant.FASTDFS.equals(uploadConfig.getType())) {
             return new FdfsClientPool(fdfsProps);
+        }
+
+        if (FileUploadConstant.MINIO.equals(uploadConfig.getType())) {
+            return new MinioClientPool(minioProperties);
         }
         log.error("文件上传组件加载失败，未找到合适的上传组件");
         throw new RuntimeException("NO useful fileUpload impl");

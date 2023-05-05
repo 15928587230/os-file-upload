@@ -92,13 +92,14 @@ public class FdfsClientWrapper implements FileUploadClient {
         if (remoteMetaInfo.length != 5) {
             return FileUploadReply.error("Remote Dir Error");
         }
-        remoteFileName = remoteMetaInfo[2] + "/" + remoteMetaInfo[3] + "/" + remoteMetaInfo[4] + "/" + fileName;
+
+        String remoteFileName1 = remoteMetaInfo[2] + "/" + remoteMetaInfo[3] + "/" + remoteMetaInfo[4] + "/" + fileName;
         String groupName = remoteMetaInfo[1];
 
         FileUploadReply fileUploadReply = FileUploadReply.success("Download Success.");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-            byte[] byteArray = client.download_file(groupName, remoteFileName);
+            byte[] byteArray = client.download_file(groupName, remoteFileName1);
             ByteBuffer byteBuffer = ByteBuffer.allocate(byteArray.length);
             byteBuffer.put(byteArray);
             byteBuffer.flip();

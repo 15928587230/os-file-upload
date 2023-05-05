@@ -5,7 +5,7 @@ owinfo:
   upload:
     enabled: true
     #FTP?FASTDFS?MINIO
-    type: FASTDFS
+    type: MINIO
     # 预览nginxUrl + remoteDir + "/" + fileRemoteName
     nginxUrl: http://192.168.20.20:80
   ftp:
@@ -16,4 +16,7 @@ owinfo:
     # 服务端需要关闭http token验证机制
   fastdfs:
     trackerServers: 192.168.20.20:22122
-  minio: ""
+  minio:
+    endpoint: http://192.168.20.20:9000
+    username: minioadmin
+    password: minioadmin

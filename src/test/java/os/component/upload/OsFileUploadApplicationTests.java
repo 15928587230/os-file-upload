@@ -129,4 +129,56 @@ public class OsFileUploadApplicationTests {
             System.out.println(fileUploadReply);
         }
     }
+
+    @Test
+    public void minioUploadFileTest() throws Exception {
+        FileUploadPool fileUploadPool = fileUploadTemplate.getFileUploadPool();
+        // 看下集合里面wrapper的instance实例是不是同一个就行了
+        FileUploadClient fileUploadClient = null;
+        for (int i = 0; i < 10; i++) {
+            try {
+                fileUploadClient = fileUploadPool.borrowClient();
+                System.out.println(fileUploadClient);
+            } finally {
+                fileUploadPool.returnClient(fileUploadClient);
+            }
+        }
+
+        File file = new File("C:\\Users\\Administrator\\Desktop\\FTP文件上传测试大小5M.exe");
+        InputStream inputStream = Files.newInputStream(file.toPath());
+        // 上传测试 FTP上传失败直接抛出异常
+        FileUploadReply fileUploadReply = fileUploadTemplate.uploadFile(inputStream, file.getName());
+        System.out.println(fileUploadReply);
+        IOUtils.closeQuietly(inputStream);
+    }
+
+    @Test
+    public void testMinioDownload() throws Exception {
+        String downloadPath = "C:\\Users\\Administrator\\Desktop\\FTPddd下载-钉钉安装客户端.exe";
+        String uuid = "007e68ad5d6749d7846fe5448a7bc5a3";
+        String remoteFileName = "007e68ad5d6749d7846fe5448a7bc5a3-FTP文件上传测试大小5M.exe";
+        String remoteDir = "/2023-5";
+        FileUploadReply fileUploadReply = fileUploadTemplate.downloadFile(uuid, remoteFileName, remoteDir);
+        if (fileUploadReply.isSuccess()) {
+            try {
+                ByteBuffer byteBuffer = fileUploadReply.getByteBuffer();
+                Path path = Paths.get(downloadPath);
+                Files.write(path, byteBuffer.array());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.out.println("文件下载失败");
+            }
+        }
+    }
+
+    @Test
+    public void testMinioDelete() throws Exception {
+        String uuid = "007e68ad5d6749d7846fe5448a7bc5a3";
+        String remoteFileName = "007e68ad5d6749d7846fe5448a7bc5a3-FTP文件上传测试大小5M.exe";
+        String remoteDir = "/2023-5";
+        FileUploadReply fileUploadReply = fileUploadTemplate.deleteFile(uuid, remoteFileName, remoteDir);
+        if (fileUploadReply.isSuccess()) {
+            System.out.println(fileUploadReply);
+        }
+    }
 }

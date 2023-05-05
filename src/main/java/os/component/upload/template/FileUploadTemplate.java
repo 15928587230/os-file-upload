@@ -5,6 +5,11 @@ import os.component.upload.FileUploadReply;
 
 import java.io.InputStream;
 
+/**
+ * 传入的参数不会有任务变动，比如inputStream不会close
+ *
+ * @author pengjunjie
+ */
 public interface FileUploadTemplate {
     /**
      * 上传文件到指定目录

@@ -55,6 +55,10 @@ public class FTPClientWrapper implements FileUploadClient {
      */
     @Override
     public FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
+        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
+            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        }
+
         boolean b = client.changeWorkingDirectory(remoteDir);
         if (!b) {
             return FileUploadReply.error("Download error, remoteDir is not exist.");
@@ -76,7 +80,7 @@ public class FTPClientWrapper implements FileUploadClient {
             fileUploadReply.setByteBuffer(byteBuffer);
         } catch (Exception e) {
             log.error("File Download Exception, Exception={}", e.toString());
-            return FileUploadReply.error("File Download Exception");
+            return FileUploadReply.error("File Download Exception, EX=" + e);
         } finally {
             IOUtils.closeQuietly(outputStream);
         }
@@ -85,6 +89,10 @@ public class FTPClientWrapper implements FileUploadClient {
 
     @Override
     public FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
+        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
+            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        }
+
         boolean b = client.changeWorkingDirectory(remoteDir);
         if (!b) {
             return FileUploadReply.error("Download error, remoteDir is not exist.");
