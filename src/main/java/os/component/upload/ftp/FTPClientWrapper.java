@@ -36,33 +36,39 @@ public class FTPClientWrapper implements FileUploadClient {
 
         createDirectoryTree(remoteDir);
         client.changeWorkingDirectory(remoteDir);
+        // 这里留给本地使用，远程需要转成StandardCharsets.ISO_8859_1
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String localRemoteFileName = uuid.concat("-").concat(fileName);
+        // 这里本地是乱码的，但是FTP显示是正常的
         String remoteFileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        String uuid = UUID.randomUUID().toString().replace("-", "");
         client.storeFile(uuid.concat("-").concat(remoteFileName), inputStream);
-        return FileUploadReply.reply(FTPReply.COMMAND_OK, uuid, fileName, remoteDir);
+        return FileUploadReply.reply(FTPReply.COMMAND_OK, uuid, localRemoteFileName, remoteDir);
     }
 
     /**
      * 文件下载
      *
      * @param fileUuid  文件UUID
-     * @param fileName  文件名称
+     * @param remoteFileName  文件名称
      * @param remoteDir 文件所在远程目录
      * @return FileUploadReply
      */
     @Override
-    public FileUploadReply downloadFile(String fileUuid, String fileName, String remoteDir) throws Exception {
+    public FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
         boolean b = client.changeWorkingDirectory(remoteDir);
         if (!b) {
             return FileUploadReply.error("Download error, remoteDir is not exist.");
         }
 
+        int index = remoteFileName.indexOf("-");
+        String fileName = remoteFileName.substring(index + 1);
+
         FileUploadReply fileUploadReply = FileUploadReply.success("Download Success.");
-        String remoteFileName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        String fileRemoteName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try {
-            client.retrieveFile(remoteFileName, outputStream);
+            client.retrieveFile(fileRemoteName, outputStream);
             byte[] byteArray = outputStream.toByteArray();
             ByteBuffer byteBuffer = ByteBuffer.allocate(byteArray.length);
             byteBuffer.put(byteArray);
@@ -78,16 +84,18 @@ public class FTPClientWrapper implements FileUploadClient {
     }
 
     @Override
-    public FileUploadReply deleteFile(String fileUuid, String fileName, String remoteDir) throws Exception {
+    public FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
         boolean b = client.changeWorkingDirectory(remoteDir);
         if (!b) {
             return FileUploadReply.error("Download error, remoteDir is not exist.");
         }
 
-        String remoteFileName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        int index = remoteFileName.indexOf("-");
+        String fileName = remoteFileName.substring(index + 1);
 
+        String fileRemoteName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         try {
-            boolean deleteFile = client.deleteFile(remoteFileName);
+            boolean deleteFile = client.deleteFile(fileRemoteName);
             if (deleteFile) {
                 return FileUploadReply.success("File Deleted Success.");
             }

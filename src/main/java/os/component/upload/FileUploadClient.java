@@ -1,6 +1,5 @@
 package os.component.upload;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public interface FileUploadClient {
@@ -17,19 +16,19 @@ public interface FileUploadClient {
      * 文件下载
      *
      * @param fileUuid 文件UUID
-     * @param fileName 文件名称
+     * @param remoteFileName 文件名称
      * @param remoteDir 文件所在远程目录
      * @return FileUploadReply
      */
-    FileUploadReply downloadFile(String fileUuid, String fileName, String remoteDir) throws Exception;
+    FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception;
 
     /**
      * 删除存储的文件
      *
      * @param fileUuid 文件UUID
-     * @param fileName 文件名称
+     * @param remoteFileName 文件名称
      * @param remoteDir 文件所在远程目录
      * @return FileUploadReply
      */
-    FileUploadReply deleteFile(String fileUuid, String fileName, String remoteDir) throws Exception;
+    FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception;
 }

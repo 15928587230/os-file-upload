@@ -26,11 +26,11 @@ public class AbstractUploadTemplate implements FileUploadTemplate {
     }
 
     @Override
-    public FileUploadReply deleteFile(String fileUuid, String fileName, String remoteDir) throws Exception {
+    public FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
         FileUploadClient fileUploadClient = null;
         try {
             fileUploadClient = fileUploadPool.borrowClient();
-            return fileUploadClient.deleteFile(fileUuid, fileName, remoteDir);
+            return fileUploadClient.deleteFile(fileUuid, remoteFileName, remoteDir);
         } finally {
             if (fileUploadClient != null)
                 fileUploadPool.returnClient(fileUploadClient);
@@ -38,11 +38,11 @@ public class AbstractUploadTemplate implements FileUploadTemplate {
     }
 
     @Override
-    public FileUploadReply downloadFile(String fileUuid, String fileName, String remoteDir) throws Exception {
+    public FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
         FileUploadClient fileUploadClient = null;
         try {
             fileUploadClient = fileUploadPool.borrowClient();
-            return fileUploadClient.downloadFile(fileUuid, fileName, remoteDir);
+            return fileUploadClient.downloadFile(fileUuid, remoteFileName, remoteDir);
         } finally {
             if (fileUploadClient != null)
                 fileUploadPool.returnClient(fileUploadClient);

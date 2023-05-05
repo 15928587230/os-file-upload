@@ -19,22 +19,22 @@ public interface FileUploadTemplate {
      * 文件下载，统一返回字节数组，至于浏览器中的下载或者是预览，需要在Response自定义
      *
      * @param fileUuid 文件UUID
-     * @param fileName 文件名称
+     * @param remoteFileName 远程文件名称
      * @param remoteDir 文件所在远程目录
      * @return FileUploadReply ByteBuffer 下载出来的具体的文件，转到Response输入流
      */
-    FileUploadReply downloadFile(String fileUuid, String fileName, String remoteDir) throws Exception;
+    FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception;
 
 
     /**
      * 删除存储的文件
      *
      * @param fileUuid 文件UUID
-     * @param fileName 文件名称
+     * @param remoteFileName 远程文件名称
      * @param remoteDir 文件所在远程目录
      * @return FileUploadReply
      */
-    FileUploadReply deleteFile(String fileUuid, String fileName, String remoteDir) throws Exception;
+    FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception;
 
     FileUploadPool getFileUploadPool();
 }

@@ -18,23 +18,23 @@ public class FileUploadReply {
     public FileUploadReply() {
     }
 
-    public FileUploadReply(String fileUuid, String fileName, String fileRemoteDir, int replyCode) {
+    public FileUploadReply(String fileUuid, String remoteFileName, String fileRemoteDir, int replyCode) {
         this.fileUuid = fileUuid;
-        this.fileName = fileName;
+        this.remoteFileName = remoteFileName;
         this.fileRemoteDir = fileRemoteDir;
         this.replyCode = replyCode;
     }
 
     private String fileUuid;
-    private String fileName;
+    private String remoteFileName;
     private String fileRemoteDir;
     private int replyCode;
     private String replyMsg;
     // 文件下载到ByteBuffer中
     private ByteBuffer byteBuffer;
 
-    public static FileUploadReply reply(int replyCode, String fileUuid, String fileName, String fileRemoteDir) {
-        return new FileUploadReply(fileUuid, fileName, fileRemoteDir, replyCode);
+    public static FileUploadReply reply(int replyCode, String fileUuid, String remoteFileName, String fileRemoteDir) {
+        return new FileUploadReply(fileUuid, remoteFileName, fileRemoteDir, replyCode);
     }
 
     public static FileUploadReply error(String replyMsg) {
