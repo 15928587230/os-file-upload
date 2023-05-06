@@ -5,10 +5,15 @@ server:
 owinfo:
   upload:
     enabled: true
+    endpointEnabled: true
     #FTP?FASTDFS?MINIO, 还是FTP好用
     type: FTP
     # 预览nginxUrl + remoteDir + "/" + fileRemoteName
     nginxUrl: http://192.168.20.20:80
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://192.168.0.109:1433;DatabaseName=macao_mpw2_dev
+    username: macao_mpw2
+    password: 1Hg6Xb0AMigHSev
   ftp:
     host: 192.168.20.20
     port: 21
@@ -25,5 +30,8 @@ owinfo:
 spring:
   servlet:
     multipart:
-      max-file-size: 100M
-      max-request-size: 100M
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+
+
