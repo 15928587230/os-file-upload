@@ -16,6 +16,7 @@ import os.component.upload.service.FileUploadImpl;
 import os.component.upload.service.FileUploadService;
 import os.component.upload.service.dao.FileUploadDao;
 import os.component.upload.service.dao.FileUploadMapper;
+import os.component.upload.template.FileUploadTemplate;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -29,9 +30,11 @@ import java.sql.SQLException;
         havingValue = "true", matchIfMissing = false)
 public class FileEndpointAutoConfiguration {
     private final FileUploadConfig fileUploadConfig;
+    private final FileUploadTemplate fileUploadTemplate;
 
-    public FileEndpointAutoConfiguration(FileUploadConfig fileUploadConfig) {
+    public FileEndpointAutoConfiguration(FileUploadConfig fileUploadConfig, FileUploadTemplate fileUploadTemplate) {
         this.fileUploadConfig = fileUploadConfig;
+        this.fileUploadTemplate = fileUploadTemplate;
     }
 
     @Bean
@@ -62,6 +65,7 @@ public class FileEndpointAutoConfiguration {
         FileUploadService fileUploadService = new FileUploadImpl(fileUploadDao);
         FileUploadEndpoint fileUploadEndpoint = new FileUploadEndpoint();
         fileUploadEndpoint.setFileUploadService(fileUploadService);
+        fileUploadEndpoint.setFileUploadTemplate(fileUploadTemplate);
         return fileUploadEndpoint;
     }
 }

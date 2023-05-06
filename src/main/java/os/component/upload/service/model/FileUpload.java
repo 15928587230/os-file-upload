@@ -2,6 +2,8 @@ package os.component.upload.service.model;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class FileUpload {
 
@@ -10,4 +12,5 @@ public class FileUpload {
     private String fileOriginName;
     private String remoteFileName;
     private String remoteDir;
+    private LocalDateTime uploadTime;
 }
