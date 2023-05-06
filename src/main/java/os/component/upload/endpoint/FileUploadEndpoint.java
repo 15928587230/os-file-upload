@@ -18,13 +18,14 @@ import os.component.upload.util.Result;
 import os.component.upload.util.Status;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RequestMapping("fileUploadEndpoint")
@@ -35,7 +36,7 @@ public class FileUploadEndpoint extends MarkController {
     private FileUploadConfig fileUploadConfig;
 
     /**
-     * 这里的dataUuid可能没那么简单，比如表单单挑数据可能有多个字段都是图片上传
+     * 这里的dataUuid可能没那么简单，比如表单单条数据可能有多个字段都是图片上传
      * 因此这里的dataUuid字段唯一值应该为数据的oid + 表单的唯一英文名称 + 字段的唯一英文名称
      *
      * @param dataUuid
