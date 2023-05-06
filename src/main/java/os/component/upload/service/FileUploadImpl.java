@@ -6,7 +6,7 @@ import os.component.upload.service.model.FileUpload;
 import java.util.List;
 
 public class FileUploadImpl implements FileUploadService {
-    private FileUploadDao fileUploadDao;
+    private final FileUploadDao fileUploadDao;
 
     public FileUploadImpl(FileUploadDao fileUploadDao) {
         this.fileUploadDao = fileUploadDao;
@@ -23,8 +23,8 @@ public class FileUploadImpl implements FileUploadService {
     }
 
     @Override
-    public List<FileUpload> getFileList(String pkId) {
-        return fileUploadDao.getFileList(pkId);
+    public List<FileUpload> getFileList(String dataUuid) {
+        return fileUploadDao.getFileList(dataUuid);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class FileUploadImpl implements FileUploadService {
     }
 
     @Override
-    public void deleteFileByPkId(String pkId) {
-        fileUploadDao.deleteFileByPkId(pkId);
+    public void deleteFileByPkId(String dataUuid) {
+        fileUploadDao.deleteFileByPkId(dataUuid);
     }
 }

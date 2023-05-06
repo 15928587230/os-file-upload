@@ -5,6 +5,8 @@ FTP
 FastDFS
 MinIO
 
+![img.png](img.png)
+
 > 提供统一的上传下载删除文件入口，通过yml配置动态切换存储方式， 按条件自动装配Datasource、FileUploadTemplate和FileUploadEndpoint【controller】  
 > @ConditionalOnProperty(prefix = "owinfo.upload", name = "endpointEnabled", havingValue = "true", matchIfMissing = false)。   
 > @ConditionalOnProperty(prefix = "owinfo.upload", name = "enabled", havingValue = "true", matchIfMissing = false)   

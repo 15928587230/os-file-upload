@@ -32,10 +32,10 @@ public class FileUploadDao {
         }
     }
 
-    public List<FileUpload> getFileList(String pkId) {
+    public List<FileUpload> getFileList(String dataUuid) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
-            return sqlSession.selectList("os.component.upload.service.dao.FileUploadMapper.getFileList", pkId);
+            return sqlSession.selectList("os.component.upload.service.dao.FileUploadMapper.getFileList", dataUuid);
         } finally {
             sqlSession.close();
         }
@@ -51,10 +51,10 @@ public class FileUploadDao {
         }
     }
 
-    public void deleteFileByPkId(String pkId) {
+    public void deleteFileByPkId(String dataUuid) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
-            sqlSession.delete("os.component.upload.service.dao.FileUploadMapper.deleteFileByPkId", pkId);
+            sqlSession.delete("os.component.upload.service.dao.FileUploadMapper.deleteFileByDataUuid", dataUuid);
             sqlSession.commit();
         } finally {
             sqlSession.close();

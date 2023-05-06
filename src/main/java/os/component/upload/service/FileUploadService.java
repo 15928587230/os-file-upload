@@ -19,7 +19,7 @@ public interface FileUploadService {
     /**
      *  获取文件信息列表
      */
-    List<FileUpload> getFileList(String pkId);
+    List<FileUpload> getFileList(String dataUuid);
 
     /**
      *  删除指定fileUuid的单个文件信息
@@ -29,5 +29,5 @@ public interface FileUploadService {
     /**
      * 删除pkId关联的文件信息列表
      */
-    void deleteFileByPkId(String pkId);
+    void deleteFileByPkId(String dataUuid);
 }
