@@ -42,7 +42,9 @@ public class FTPClientWrapper implements FileUploadClient {
         // 这里本地是乱码的，但是FTP显示是正常的
         String remoteFileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         client.storeFile(uuid.concat("-").concat(remoteFileName), inputStream);
-        return FileUploadReply.reply(FTPReply.COMMAND_OK, uuid, localRemoteFileName, remoteDir);
+        FileUploadReply reply = FileUploadReply.reply(FTPReply.COMMAND_OK, uuid, localRemoteFileName, remoteDir);
+        reply.setFileOriginName(fileName);
+        return reply;
     }
 
     /**

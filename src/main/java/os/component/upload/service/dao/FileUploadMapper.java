@@ -23,7 +23,7 @@ public interface FileUploadMapper {
 
     @Select("select file_uuid as fileUuid, pk_id as pkId, file_origin_name as fileOriginName, " +
             " remote_file_name as remoteFileName, remote_dir as remoteDir, upload_time as uploadTime" +
-            " from file_upload where pk_id = #{pkId}")
+            " from file_upload where pk_id = #{pkId} order by upload_time asc")
     List<FileUpload> getFileList(String pkId);
 
     @Delete("delete from file_upload where file_uuid = #{fileUuid}}")

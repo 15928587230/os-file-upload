@@ -65,7 +65,9 @@ public class FdfsClientWrapper implements FileUploadClient {
             if (StringUtils.hasLength(remoteFileName) && (lastIndex = remoteFileName.lastIndexOf(".")) != -1) {
                 fileUuid = remoteFileName.substring(0, lastIndex);
             }
-            return FileUploadReply.reply(FTPReply.COMMAND_OK, fileUuid, remoteFileName, remoteDir);
+            FileUploadReply reply = FileUploadReply.reply(FTPReply.COMMAND_OK, fileUuid, remoteFileName, remoteDir);
+            reply.setFileOriginName(fileName);
+            return reply;
         }
         return FileUploadReply.error("FDFS Upload Error.");
     }

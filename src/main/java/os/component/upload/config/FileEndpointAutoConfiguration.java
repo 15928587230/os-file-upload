@@ -66,6 +66,7 @@ public class FileEndpointAutoConfiguration {
         FileUploadEndpoint fileUploadEndpoint = new FileUploadEndpoint();
         fileUploadEndpoint.setFileUploadService(fileUploadService);
         fileUploadEndpoint.setFileUploadTemplate(fileUploadTemplate);
+        fileUploadEndpoint.setFileUploadConfig(fileUploadConfig);
         return fileUploadEndpoint;
     }
 }

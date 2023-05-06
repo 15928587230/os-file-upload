@@ -45,7 +45,9 @@ public class MinioClientWrapper implements FileUploadClient {
         PutObjectArgs putObjectArgs = PutObjectArgs.builder().bucket(bucketName).object(remoteFileName)
                 .stream(inputStream, inputStream.available(), -1).build();
         client.putObject(putObjectArgs);
-        return FileUploadReply.reply(FTPReply.COMMAND_OK, uuid, remoteFileName, remoteDir);
+        FileUploadReply reply = FileUploadReply.reply(FTPReply.COMMAND_OK, uuid, remoteFileName, remoteDir);
+        reply.setFileOriginName(fileName);
+        return reply;
     }
 
     @Override
