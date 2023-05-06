@@ -1,11 +1,12 @@
 server:
   port: 8080
 
+
 owinfo:
   upload:
     enabled: true
-    #FTP?FASTDFS?MINIO
-    type: MINIO
+    #FTP?FASTDFS?MINIO, 还是FTP好用
+    type: FTP
     # 预览nginxUrl + remoteDir + "/" + fileRemoteName
     nginxUrl: http://192.168.20.20:80
   ftp:
@@ -20,3 +21,9 @@ owinfo:
     endpoint: http://192.168.20.20:9000
     username: minioadmin
     password: minioadmin
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100M
+      max-request-size: 100M
