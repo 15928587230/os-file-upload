@@ -5,7 +5,10 @@ FTP
 FastDFS
 MinIO
 
-> 提供统一的上传下载删除文件入口，通过yml配置动态切换存储方式
+> 提供统一的上传下载删除文件入口，通过yml配置动态切换存储方式， 按条件自动装配Datasource、FileUploadTemplate和FileUploadEndpoint【controller】  
+> @ConditionalOnProperty(prefix = "owinfo.upload", name = "endpointEnabled", havingValue = "true", matchIfMissing = false)。   
+> @ConditionalOnProperty(prefix = "owinfo.upload", name = "enabled", havingValue = "true", matchIfMissing = false)   
+> 提供file_upload表统一存储上传的文件列表信息，DAO层参考美团号段模式的持久层写法。和外部数据ID进行关联。
 
 ```yml
 server:
@@ -14,27 +17,38 @@ server:
 owinfo:
   upload:
     enabled: true
+    endpointEnabled: true
     #FTP?FASTDFS?MINIO
-    type: MINIO
+    type: FTP
     # 预览nginxUrl + remoteDir + "/" + fileRemoteName
     nginxUrl: http://192.168.20.20:80
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://xxx;DatabaseName=xxx
+    username: xxx
+    password: xxx
   ftp:
     host: 192.168.20.20
     port: 21
-    username: ftpuser
-    password: ftpuser
+    username: xxx
+    password: xxx
     # 服务端需要关闭http token验证机制
   fastdfs:
     trackerServers: 192.168.20.20:22122
   minio:
     endpoint: http://192.168.20.20:9000
-    username: minioadmin
-    password: minioadmin
+    username: xxx
+    password: xxx
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 ```
 
 ```java
 /**
- * 传入的参数不会有任务变动，比如inputStream不会close
+ * 传入的参数不会有任何变动，比如inputStream不会close
  *
  * @author pengjunjie
  */
