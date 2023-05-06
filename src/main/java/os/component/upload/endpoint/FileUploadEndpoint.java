@@ -3,6 +3,7 @@ package os.component.upload.endpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import os.component.upload.util.Result;
 import os.component.upload.util.Status;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
+@Validated
 @RequestMapping("fileUploadEndpoint")
 public class FileUploadEndpoint extends MarkController {
     private static final String FILE_NAME = "file";
@@ -43,7 +47,7 @@ public class FileUploadEndpoint extends MarkController {
      * @return
      */
     @PostMapping("uploadFile")
-    public Result uploadFile(MultipartHttpServletRequest request, @RequestParam String dataUuid) {
+    public Result uploadFile(MultipartHttpServletRequest request, @Valid @NotBlank(message = "dataUuid：不能为空") @RequestParam String dataUuid) {
         MultipartFile file = request.getFile(FILE_NAME);
         assert file != null;
         InputStream inputStream = null;
@@ -63,7 +67,7 @@ public class FileUploadEndpoint extends MarkController {
     }
 
     @GetMapping("getFileInfoList")
-    public Result getFileInfoList(@RequestParam String dataUuid) {
+    public Result getFileInfoList(@Valid @NotBlank(message = "dataUuid：不能为空") @RequestParam String dataUuid) {
         List<FileUpload> fileList = fileUploadService.getFileList(dataUuid);
         fileList.forEach(fileUpload -> {
             fileUpload.setViewOrDownloadUrl(getViewOrDownloadUrl(fileUpload.getRemoteDir(), fileUpload.getRemoteFileName()));
@@ -73,7 +77,7 @@ public class FileUploadEndpoint extends MarkController {
 
     // 附件或者图片删除
     @GetMapping("deleteFile")
-    public Result deleteFile(@RequestParam String fileUuid) {
+    public Result deleteFile(@Valid @NotBlank(message = "fileUuid：不能为空") @RequestParam String fileUuid) {
         FileUpload file = fileUploadService.getFile(fileUuid);
         if (file == null) {
             return Result.build(Status.FAILURE, "File Does Not Exist.");
@@ -91,7 +95,7 @@ public class FileUploadEndpoint extends MarkController {
 
     // 附件或者图片下载
     @GetMapping("downloadFile")
-    public void downloadFile(HttpServletResponse response, @RequestParam String fileUuid) throws Exception {
+    public void downloadFile(HttpServletResponse response, @Valid @NotBlank(message = "fileUuid：不能为空") @RequestParam String fileUuid) throws Exception {
         FileUpload file = fileUploadService.getFile(fileUuid);
         if (file == null || StringUtils.isEmpty(file.getRemoteFileName())
                 || StringUtils.isEmpty(file.getRemoteDir())) {
