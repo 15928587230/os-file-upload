@@ -4,11 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.csource.fastdfs.FileInfo;
 import org.csource.fastdfs.StorageClient;
 import org.csource.fastdfs.TrackerServer;
 import org.springframework.util.StringUtils;
 import os.component.upload.FileUploadClient;
 import os.component.upload.FileUploadReply;
+import os.component.upload.util.FileUploadUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,8 +86,9 @@ public class FdfsClientWrapper implements FileUploadClient {
      */
     @Override
     public FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
-        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
-            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        FileUploadReply existReply = exist(fileUuid, remoteFileName, remoteDir);
+        if (!existReply.isSuccess()) {
+            return FileUploadReply.error("Download error, File does not exist.");
         }
 
         String[] remoteMetaInfo = remoteDir.split("/");
@@ -117,8 +120,9 @@ public class FdfsClientWrapper implements FileUploadClient {
 
     @Override
     public FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
-        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
-            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        FileUploadReply existReply = exist(fileUuid, remoteFileName, remoteDir);
+        if (!existReply.isSuccess()) {
+            return FileUploadReply.error("Delete error, File does not exist.");
         }
 
         String[] remoteMetaInfo = remoteDir.split("/");
@@ -136,6 +140,31 @@ public class FdfsClientWrapper implements FileUploadClient {
             return FileUploadReply.error("Delete File Exception, Exception = " + ex);
         }
         return FileUploadReply.success("Delete File Success.");
+    }
+
+    @Override
+    public FileUploadReply exist(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
+        if (FileUploadUtils.emptyAll(fileUuid, remoteFileName, remoteDir)) {
+            return FileUploadReply.error("File does not exist.");
+        }
+
+        try {
+            String[] remoteMetaInfo = remoteDir.split("/");
+            String extension = FilenameUtils.getExtension(remoteFileName);
+            String fileName = fileUuid + "." + extension;
+            if (remoteMetaInfo.length != 5) {
+                return FileUploadReply.error("Remote Dir Error");
+            }
+            remoteFileName = remoteMetaInfo[2] + "/" + remoteMetaInfo[3] + "/" + remoteMetaInfo[4] + "/" + fileName;
+            String groupName = remoteMetaInfo[1];
+            FileInfo fileInfo = client.query_file_info(groupName, remoteFileName);
+            if (fileInfo != null) {
+                return FileUploadReply.success("File exist.");
+            }
+        } catch (Exception ex) {
+            log.error("File query Exception, EX= {}", ex.toString());
+        }
+        return FileUploadReply.error("File does not exist.");
     }
 
     public byte[] inputStreamToByteArray(InputStream inputStream) throws IOException {

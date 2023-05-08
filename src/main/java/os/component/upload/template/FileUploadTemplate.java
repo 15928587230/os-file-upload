@@ -41,5 +41,15 @@ public interface FileUploadTemplate {
      */
     FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception;
 
+    /**
+     * 是否存在该文件
+     *
+     * @param fileUuid 文件UUID
+     * @param remoteFileName 远程文件名称
+     * @param remoteDir 文件所在远程目录
+     * @return FileUploadReply
+     */
+    FileUploadReply exist(String fileUuid, String remoteFileName, String remoteDir) throws Exception;
+
     FileUploadPool getFileUploadPool();
 }

@@ -7,6 +7,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.util.StringUtils;
 import os.component.upload.FileUploadClient;
 import os.component.upload.FileUploadReply;
+import os.component.upload.util.FileUploadUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,8 +53,9 @@ public class MinioClientWrapper implements FileUploadClient {
 
     @Override
     public FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
-        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
-            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        FileUploadReply existReply = exist(fileUuid, remoteFileName, remoteDir);
+        if (!existReply.isSuccess()) {
+            return FileUploadReply.error("Download error, File does not exist.");
         }
 
         FileUploadReply fileUploadReply = FileUploadReply.success("Download Success.");
@@ -86,8 +88,9 @@ public class MinioClientWrapper implements FileUploadClient {
 
     @Override
     public FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
-        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
-            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        FileUploadReply existReply = exist(fileUuid, remoteFileName, remoteDir);
+        if (!existReply.isSuccess()) {
+            return FileUploadReply.error("Delete error, File does not exist.");
         }
 
         try {
@@ -99,6 +102,24 @@ public class MinioClientWrapper implements FileUploadClient {
             return FileUploadReply.error("Delete File exception, EX = {}" + e);
         }
         return FileUploadReply.success("Delete File Success.");
+    }
+
+    @Override
+    public FileUploadReply exist(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
+        if (FileUploadUtils.emptyAll(fileUuid, remoteFileName, remoteDir)) {
+            return FileUploadReply.error("File does not exist.");
+        }
+
+        String bucketName = remoteDir.replaceAll("/", "").trim();
+        StatObjectArgs statObjectArgs = StatObjectArgs.builder().bucket(bucketName).object(remoteFileName).build();
+        try {
+            client.statObject(statObjectArgs);
+        } catch (Exception ex) {
+            log.error("File does not exist.");
+            return FileUploadReply.error("File does not exist.");
+        }
+        return FileUploadReply.success("File exist.");
+
     }
 
     /**

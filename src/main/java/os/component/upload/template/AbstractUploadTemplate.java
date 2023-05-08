@@ -38,6 +38,18 @@ public class AbstractUploadTemplate implements FileUploadTemplate {
     }
 
     @Override
+    public FileUploadReply exist(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
+        FileUploadClient fileUploadClient = null;
+        try {
+            fileUploadClient = fileUploadPool.borrowClient();
+            return fileUploadClient.exist(fileUuid, remoteFileName, remoteDir);
+        } finally {
+            if (fileUploadClient != null)
+                fileUploadPool.returnClient(fileUploadClient);
+        }
+    }
+
+    @Override
     public FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
         FileUploadClient fileUploadClient = null;
         try {

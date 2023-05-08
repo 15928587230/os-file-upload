@@ -2,11 +2,13 @@ package os.component.upload.ftp;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.util.StringUtils;
 import os.component.upload.FileUploadClient;
 import os.component.upload.FileUploadReply;
+import os.component.upload.util.FileUploadUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -57,64 +59,79 @@ public class FTPClientWrapper implements FileUploadClient {
      */
     @Override
     public FileUploadReply downloadFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
-        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
-            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        FileUploadReply existReply = exist(fileUuid, remoteFileName, remoteDir);
+        if (!existReply.isSuccess()) {
+            return FileUploadReply.error("Download error, File does not exist.");
         }
 
-        boolean b = client.changeWorkingDirectory(remoteDir);
+        boolean b = client.changeWorkingDirectory(existReply.getRemoteDir());
         if (!b) {
-            return FileUploadReply.error("Download error, remoteDir is not exist.");
+            return FileUploadReply.error("Download error, File is not exist.");
         }
 
-        int index = remoteFileName.indexOf("-");
-        String fileName = remoteFileName.substring(index + 1);
-
-        FileUploadReply fileUploadReply = FileUploadReply.success("Download Success.");
-        String fileRemoteName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
         try {
-            client.retrieveFile(fileRemoteName, outputStream);
+            client.retrieveFile(existReply.getRemoteFileName(), outputStream);
             byte[] byteArray = outputStream.toByteArray();
             ByteBuffer byteBuffer = ByteBuffer.allocate(byteArray.length);
             byteBuffer.put(byteArray);
             byteBuffer.flip();
-            fileUploadReply.setByteBuffer(byteBuffer);
+            existReply.setByteBuffer(byteBuffer);
+            existReply.setReplyMsg("Download success.");
         } catch (Exception e) {
             log.error("File Download Exception, Exception={}", e.toString());
             return FileUploadReply.error("File Download Exception, EX=" + e);
         } finally {
             IOUtils.closeQuietly(outputStream);
         }
-        return fileUploadReply;
+        return existReply;
     }
 
     @Override
     public FileUploadReply deleteFile(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
-        if (StringUtils.isEmpty(remoteDir) || StringUtils.isEmpty(remoteFileName) || StringUtils.isEmpty(fileUuid)) {
-            return FileUploadReply.error("fileUuid or remoteFileName or remote Dir can not be empty.");
+        FileUploadReply exist = exist(fileUuid, remoteFileName, remoteDir);
+        if (!exist.isSuccess()) {
+            return FileUploadReply.error("Delete error, File does not exist.");
         }
 
-        boolean b = client.changeWorkingDirectory(remoteDir);
+        boolean b = client.changeWorkingDirectory(exist.getRemoteDir());
         if (!b) {
-            return FileUploadReply.error("Download error, remoteDir is not exist.");
+            return FileUploadReply.error("Delete error, File does not exist.");
         }
 
-        int index = remoteFileName.indexOf("-");
-        String fileName = remoteFileName.substring(index + 1);
-
-        String fileRemoteName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         try {
-            boolean deleteFile = client.deleteFile(fileRemoteName);
-            if (deleteFile) {
-                return FileUploadReply.success("File Deleted Success.");
-            }
-            throw new RuntimeException("File Delete Exception");
+            client.deleteFile(exist.getRemoteFileName());
+            return FileUploadReply.success("File Deleted Success.");
         } catch (Exception e) {
             log.error("File Delete Exception, Exception={}", e.toString());
             return FileUploadReply.error("File Delete Exception");
         }
     }
+
+    @Override
+    public FileUploadReply exist(String fileUuid, String remoteFileName, String remoteDir) throws Exception {
+        if (FileUploadUtils.emptyAll(fileUuid, remoteFileName, remoteDir)) {
+            return FileUploadReply.error("File does not exist.");
+        }
+
+        int index = remoteFileName.indexOf("-");
+        String fileName = remoteFileName.substring(index + 1);
+        String fileRemoteName = fileUuid + "-" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+
+        FTPFile[] ftpFiles = client.listFiles(remoteDir + "/" + fileRemoteName);
+        if (ftpFiles == null || ftpFiles.length == 0) {
+            return FileUploadReply.error("File does not exist.");
+        }
+
+        FileUploadReply fileUploadReply = FileUploadReply.success("File exist.");
+        fileUploadReply.setFileOriginName(fileName);
+        fileUploadReply.setRemoteFileName(fileRemoteName);
+        fileUploadReply.setRemoteDir(remoteDir);
+        fileUploadReply.setFileUuid(fileUuid);
+        return fileUploadReply;
+    }
+
+
 
     /**
      * 直接年月日目录在服务器创建目录
